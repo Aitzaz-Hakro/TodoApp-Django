@@ -1,0 +1,44 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django default SQLite DB and related files
+myproject/db.sqlite3
+myproject/db.sqlite3-*
+myproject/db.sqlite3-journal
+myproject/db.sqlite3-shm
+myproject/db.sqlite3-wal
+
+# Django migrations (except for __init__.py)
+myproject/TodoApp/migrations/
+!myproject/TodoApp/migrations/__init__.py
+
+# Environment and config
+.env
+.env.*
+.venv/
+venv/
+env/
+*.env
+
+# IDE and editor files
+.vscode/
+.idea/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test/output files
+*.log
+*.bak
+
+# Do not commit Django project code/config files that might be secrets
+myproject/settings.py
+
+# Optional: Ignore build/dist/egg-info if Python packaging used
+build/
+dist/
+*.egg-info/

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO APP</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .container {
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">TODO APP</h1>
+        <div>
+            <span class="me-2">Signed in as {{ user.username }}</span>
+            <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm">Logout</a>
+        </div>
+    </div>
+    <h2>Add a new task</h2>
+    <form action="{% url 'index' %}" method="post">
+        {% csrf_token %}
+        <div class="d-flex flex-row gap-2">
+            <input type="text" class="form-control w-25" name="title" placeholder="Title" required>
+            <textarea class="form-control w-25" name="description" placeholder="Description"></textarea>
+            <input type="datetime-local" class="form-control w-25" name="due_date" placeholder="Due Date">
+            <button type="submit" class="btn btn-primary">Add</button>
+        
+        </div>
+        </form>
+    <h2>Tasks</h2>
+    <ul>
+        {% for task in tasks %}
+        <li>
+            {{ task.created_at|date:"d/m/Y H:i" }} - {{ task.title }}
+            {% if task.description %} — {{ task.description }}{% endif %}
+            - Due: 
+            {% if task.due_date %}
+                {{ task.due_date|date:"d/m/Y H:i" }}
+            {% else %}
+                <span class="text-danger">Not set</span>
+            {% endif %}
+            <a href="{% url 'delete_task' task.id %}" class="btn btn-danger btn-sm ms-2">Delete</a>
+        </li>
+        {% if task.completed %}
+        <span class="badge bg-success">Completed</span>
+        {% else %}
+        <span class="badge bg-warning">Not Completed</span>
+        {% endif %}
+        <a href="{% url 'complete_task' task.id %}" class="btn btn-success btn-sm">Complete</a>
+        <a href="{% url 'uncomplete_task' task.id %}" class="btn btn-warning btn-sm">Uncomplete</a>
+        {% empty %}
+        <li>No tasks yet.</li>
+        {% endfor %}
+    </ul>
+    </div>
+</body>
+</html>
