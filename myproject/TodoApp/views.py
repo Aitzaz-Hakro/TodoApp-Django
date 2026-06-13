@@ -22,8 +22,14 @@ def index(request):
             )
         return redirect('index')
 
-    tasks = Task.objects.filter(user=request.user)
-    return render(request, 'index.html', {'tasks': tasks})
+    tasks = Task.objects.filter(user=request.user).order_by('completed', '-created_at')
+    completed_count = tasks.filter(completed=True).count()
+    pending_count = tasks.filter(completed=False).count()
+    return render(request, 'index.html', {
+        'tasks': tasks,
+        'completed_count': completed_count,
+        'pending_count': pending_count,
+    })
 
 
 def login_view(request):

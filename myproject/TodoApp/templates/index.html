@@ -1,62 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TODO APP</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <style>
-        .container {
-            margin-top: 50px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">TODO APP</h1>
-        <div>
-            <span class="me-2">Signed in as {{ user.username }}</span>
-            <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm">Logout</a>
+{% extends "base.html" %}
+
+{% block title %}Tasks · Taskflow{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-mark">T</div>
+            <div class="brand-copy">
+                <h1>Taskflow</h1>
+                <p>Stay organized, one task at a time.</p>
+            </div>
         </div>
-    </div>
-    <h2>Add a new task</h2>
-    <form action="{% url 'index' %}" method="post">
-        {% csrf_token %}
-        <div class="d-flex flex-row gap-2">
-            <input type="text" class="form-control w-25" name="title" placeholder="Title" required>
-            <textarea class="form-control w-25" name="description" placeholder="Description"></textarea>
-            <input type="datetime-local" class="form-control w-25" name="due_date" placeholder="Due Date">
-            <button type="submit" class="btn btn-primary">Add</button>
-        
+        <div class="header-actions">
+            <div class="user-pill">Signed in as <strong>{{ user.username }}</strong></div>
+            <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm">Logout</a>
         </div>
-        </form>
-    <h2>Tasks</h2>
-    <ul>
-        {% for task in tasks %}
-        <li>
-            {{ task.created_at|date:"d/m/Y H:i" }} - {{ task.title }}
-            {% if task.description %} — {{ task.description }}{% endif %}
-            - Due: 
-            {% if task.due_date %}
-                {{ task.due_date|date:"d/m/Y H:i" }}
+    </header>
+
+    <section class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">Total tasks</span>
+            <span class="stat-value">{{ tasks|length }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Completed</span>
+            <span class="stat-value">{{ completed_count }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Pending</span>
+            <span class="stat-value">{{ pending_count }}</span>
+        </div>
+    </section>
+
+    <section class="card" style="margin-bottom: 1rem;">
+        <div class="card-body">
+            <h2 class="section-title">Add a new task</h2>
+            <form action="{% url 'index' %}" method="post">
+                {% csrf_token %}
+                <div class="task-form-grid">
+                    <div class="field">
+                        <label for="title">Title</label>
+                        <input id="title" type="text" class="input" name="title" placeholder="What needs to be done?" required>
+                    </div>
+                    <div class="field">
+                        <label for="description">Description</label>
+                        <textarea id="description" class="textarea" name="description" placeholder="Add optional details"></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="due_date">Due date</label>
+                        <input id="due_date" type="datetime-local" class="input" name="due_date">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add task</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="card-body">
+            <h2 class="section-title">Your tasks</h2>
+
+            {% if tasks %}
+            <div class="task-list">
+                {% for task in tasks %}
+                <article class="task-item{% if task.completed %} is-complete{% endif %}">
+                    <div class="task-check" aria-hidden="true"></div>
+
+                    <div>
+                        <h3 class="task-title">{{ task.title }}</h3>
+                        {% if task.description %}
+                        <p class="task-description">{{ task.description }}</p>
+                        {% endif %}
+                        <div class="task-meta">
+                            <span class="meta-chip">Created {{ task.created_at|date:"M j, Y · g:i A" }}</span>
+                            {% if task.due_date %}
+                            <span class="meta-chip">Due {{ task.due_date|date:"M j, Y · g:i A" }}</span>
+                            {% else %}
+                            <span class="meta-chip">No due date</span>
+                            {% endif %}
+                            {% if task.completed %}
+                            <span class="badge badge-success">Completed</span>
+                            {% else %}
+                            <span class="badge badge-warning">Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="task-actions">
+                        {% if task.completed %}
+                        <a href="{% url 'uncomplete_task' task.id %}" class="btn btn-warning btn-sm">Mark pending</a>
+                        {% else %}
+                        <a href="{% url 'complete_task' task.id %}" class="btn btn-success btn-sm">Complete</a>
+                        {% endif %}
+                        <a href="{% url 'delete_task' task.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
             {% else %}
-                <span class="text-danger">Not set</span>
+            <div class="empty-state">
+                <div class="empty-icon">+</div>
+                <h3 class="section-title">No tasks yet</h3>
+                <p>Add your first task above to get started.</p>
+            </div>
             {% endif %}
-            <a href="{% url 'delete_task' task.id %}" class="btn btn-danger btn-sm ms-2">Delete</a>
-        </li>
-        {% if task.completed %}
-        <span class="badge bg-success">Completed</span>
-        {% else %}
-        <span class="badge bg-warning">Not Completed</span>
-        {% endif %}
-        <a href="{% url 'complete_task' task.id %}" class="btn btn-success btn-sm">Complete</a>
-        <a href="{% url 'uncomplete_task' task.id %}" class="btn btn-warning btn-sm">Uncomplete</a>
-        {% empty %}
-        <li>No tasks yet.</li>
-        {% endfor %}
-    </ul>
-    </div>
-</body>
-</html>
+        </div>
+    </section>
+</div>
+{% endblock %}
