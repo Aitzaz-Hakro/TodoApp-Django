@@ -36,24 +36,27 @@
     <section class="card" style="margin-bottom: 1rem;">
         <div class="card-body">
             <h2 class="section-title">Add a new task</h2>
-            <form action="{% url 'index' %}" method="post">
+            <form id="add-task-form" action="{% url 'index' %}" method="post">
                 {% csrf_token %}
+                {% if error %}
+                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                {% endif %}
                 <div class="task-form-grid">
                     <div class="field">
                         <label for="title">Title</label>
-                        <input id="title" type="text" class="input" name="title" placeholder="What needs to be done?" required>
+                        <input id="title" type="text" class="input" name="title" placeholder="What needs to be done?" value="{{ form_data.title }}" required>
                     </div>
                     <div class="field">
                         <label for="description">Description</label>
-                        <textarea id="description" class="textarea" name="description" placeholder="Add optional details"></textarea>
+                        <textarea id="description" class="textarea" name="description" placeholder="Add optional details">{{ form_data.description }}</textarea>
                     </div>
                     <div class="field">
                         <label for="due_date">Due date</label>
-                        <input id="due_date" type="datetime-local" class="input" name="due_date" required>
+                        <input id="due_date" type="datetime-local" class="input" name="due_date" value="{{ form_data.due_date }}" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Add task</button>
                 </div>
-            </form>
+            </form>     
         </div>
     </section>
 
@@ -108,4 +111,43 @@
         </div>
     </section>
 </div>
+<script>
+(function () {
+    const dueDateInput = document.getElementById('due_date');
+    const form = document.getElementById('add-task-form');
+
+    function toLocalDatetimeLocal(date) {
+        const pad = (n) => String(n).padStart(2, '0');
+        return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) +
+            'T' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+    }
+
+    function setMinDueDate() {
+        dueDateInput.min = toLocalDatetimeLocal(new Date());
+    }
+
+    setMinDueDate();
+    dueDateInput.addEventListener('focus', setMinDueDate);
+    dueDateInput.addEventListener('input', function () {
+        dueDateInput.setCustomValidity('');
+    });
+
+    form.addEventListener('submit', function (event) {
+        setMinDueDate();
+        if (!dueDateInput.value) {
+            return;
+        }
+
+        const selected = new Date(dueDateInput.value);
+        if (selected < new Date()) {
+            event.preventDefault();
+            dueDateInput.setCustomValidity('Due date must be in the future.');
+            dueDateInput.reportValidity();
+            return;
+        }
+
+        dueDateInput.setCustomValidity('');
+    });
+})();
+</script>
 {% endblock %}
