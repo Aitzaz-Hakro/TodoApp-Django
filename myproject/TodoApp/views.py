@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, render  # pyright: ignore[reportMissingImports]
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-
 from .models import Task
 
 
@@ -38,7 +37,7 @@ def index(request):
                 if parsed_due_date < timezone.now():
                     error = 'Due date must be in the future.'
                 else:
-                    Task.objects.create(
+                    Task.objects.create(  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
                         user=request.user,
                         title=title,
                         description=description,
@@ -46,7 +45,7 @@ def index(request):
                     )
                     return redirect('index')
 
-    tasks = Task.objects.filter(user=request.user).order_by('completed', '-created_at')
+    tasks = Task.objects.filter(user=request.user).order_by('completed', '-created_at')  # pyright: ignore[reportAttributeAccessIssue]
     completed_count = tasks.filter(completed=True).count()
     pending_count = tasks.filter(completed=False).count()
     return render(request, 'index.html', {
@@ -95,18 +94,18 @@ def logout_view(request):
     return redirect('login')
 
 def delete_task(request, task_id):
-    task = Task.objects.get(id=task_id)
+    task = Task.objects.get(id=task_id)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
     task.delete()
     return redirect('index')
 
 def complete_task(request, task_id):
-    task = Task.objects.get(id=task_id)
+    task = Task.objects.get(id=task_id)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
     task.complete()
     task.save()
     return redirect('index')
 
 def uncomplete_task(request, task_id):
-    task = Task.objects.get(id=task_id)
+    task = Task.objects.get(id=task_id)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
     task.uncomplete()
     task.save()
     return redirect('index')

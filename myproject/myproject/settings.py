@@ -5,7 +5,7 @@ Django settings for myproject project.
 import os
 from pathlib import Path
 
-import dj_database_url
+import dj_database_url # pyright: ignore[reportMissingImports]
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -90,7 +90,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Karachi'
 USE_I18N = True
 USE_TZ = True
 

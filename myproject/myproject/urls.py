@@ -17,9 +17,11 @@ Including another URLconf
 from django.contrib import admin  # pyright: ignore[reportMissingImports]
 from django.urls import path  # pyright: ignore[reportMissingImports]
 from TodoApp.urls import urlpatterns as todo_urls  # pyright: ignore[reportMissingImports]
+from TodoApp.api.urls import urlpatterns as api_urls  # pyright: ignore[reportMissingImports]
 from django.urls import include  # pyright: ignore[reportMissingImports]
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(todo_urls)),
+    path('api/', include(api_urls)),
 ]
